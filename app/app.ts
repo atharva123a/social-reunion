@@ -4,12 +4,19 @@ const express = require('express');
 import http from 'http';
 import { PORT } from './config';
 import { initDb } from './db';
-
+import { router as userRouter } from './user/userRoutes';
+import cors from 'cors';
+import morgan from 'morgan';
+import compression from 'compression';
 const app = express();
 
 const server = http.createServer(app);
 
-// connect to mongoose:
+app.use(express.urlencoded({ extended: false }));
+app.use(compression());
+app.use(express.json());
+app.use(cors());
+app.use(morgan('[:date[web]] :method :url :status :response-time ms'));
 
 app.get('/', (req, res) => {
   res.send('HOME PAGE');
@@ -23,6 +30,7 @@ async function initServer() {
 
 async function initRouter() {
   app.use('/health', (req, res) => res.send('OK!'));
+  app.use('/api', userRouter);
 }
 
 export async function init() {
