@@ -1,5 +1,4 @@
 import Router from 'express';
-import { Request, Response } from 'express';
 import UserService from './userService';
 import { authorizeUser } from '../utils/auth';
 
@@ -9,3 +8,4 @@ router.get('/user', authorizeUser, UserService.getUser);
 router.post('/authenticate', UserService.authenticateUser);
 
 router.post('/follow/:id', authorizeUser, UserService.followUser);
+router.post('/unfollow/:id', authorizeUser, UserService.unfollowUser);

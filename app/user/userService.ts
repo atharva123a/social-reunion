@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import createAPIError from '../utils/error';
 import UserSchema, { update } from './userSchema';
 import { createTokenUser, getTokens, validateToken } from '../utils/jwt';
+import { fips } from 'crypto';
 
 const DUMMY_EMAIL = 'athens@gmail.com';
 const DUMMY_PASSWORD = '12345678';
@@ -55,9 +56,16 @@ const getUser = async (req: any, res: Response) => {
   try {
     const userId = req.user.id;
 
-    const user = await UserSchema.findById(userId);
+    const { username, followers, following } = await UserSchema.findById(
+      userId
+    ).select('username followers following');
 
-    return res.status(200).json({ success: true, data: user });
+    let [numOfFollowers, numOfFollowing] = [followers.length, following.length];
+
+    return res.status(200).json({
+      success: true,
+      data: { username, numOfFollowers, numOfFollowing }
+    });
   } catch (error) {
     let err = error.msg || error;
     console.log(err);
@@ -73,29 +81,36 @@ const followUser = async (req: any, res: Response) => {
     // this is from params:
     const userId = req.params.id;
 
+    if (followerId.toString() == userId.toString()) {
+      return createAPIError(400, `You can't follow/unfollow yourself!`, res);
+    }
+
     const user = await UserSchema.findById(userId);
 
     if (!user || user.isDeleted) {
       return createAPIError(404, `No such user found to follow!`, res);
     }
 
-    let updatedFollowerList = user.followers.filter(
-      (follower) => follower != followerId.toString()
+    const unfollower = await UserSchema.findById(followerId);
+
+    let list = unfollower.following.filter(
+      (person) => person == userId.toString()
     );
 
-    if (updatedFollowerList.length == user.followers.length) {
-      // followers was not following this person before:
-      updatedFollowerList.push(followerId.toString());
+    if (!list || list.length == 0) {
+      user.followers.push(followerId.toString());
+      unfollower.following.push(userId.toString());
 
-      user.followers = updatedFollowerList;
       await user.save();
+      await unfollower.save();
+      return res
+        .status(200)
+        .json({ success: true, message: 'Followed successfully!' });
     }
 
     return res
       .status(200)
-      .json({ success: true, message: 'Followed successfully!' });
-
-    return res.status(200).json({ success: true, data: user });
+      .json({ success: true, message: 'Already followed!' });
   } catch (error) {
     let err = error.msg || error;
     console.log(err);
@@ -103,4 +118,54 @@ const followUser = async (req: any, res: Response) => {
   }
 };
 
-export = { authenticateUser, getUser, followUser };
+const unfollowUser = async (req: any, res: Response) => {
+  try {
+    // this is from the JWT:
+    const unfollowerId = req.user.id;
+
+    // this is from params:
+    const userId = req.params.id;
+
+    if (unfollowerId.toString() == userId.toString()) {
+      return createAPIError(400, `You can't follow/unfollow yourself!`, res);
+    }
+
+    const user = await UserSchema.findById(userId);
+
+    if (!user || user.isDeleted) {
+      return createAPIError(404, `No such user found to unfollow!`, res);
+    }
+
+    const unfollower = await UserSchema.findById(unfollowerId);
+
+    let list = unfollower.following.filter(
+      (person) => person == userId.toString()
+    );
+
+    if (list.length == 1) {
+      unfollower.following = unfollower.following.filter(
+        (person) => person != userId.toString()
+      );
+      user.followers = user.followers.filter(
+        (person) => person != unfollowerId.toString()
+      );
+
+      await user.save();
+      await unfollower.save();
+
+      return res
+        .status(200)
+        .json({ success: true, message: 'Unfollowed successfully!' });
+    }
+
+    return res
+      .status(200)
+      .json({ success: true, message: 'Already unfollowed!' });
+  } catch (error) {
+    let err = error.msg || error;
+    console.log(err);
+    createAPIError(500, err, res);
+  }
+};
+
+export = { authenticateUser, getUser, followUser, unfollowUser };
