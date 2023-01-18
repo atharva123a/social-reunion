@@ -20,7 +20,7 @@ app.use(cors());
 app.use(morgan('[:date[web]] :method :url :status :response-time ms'));
 
 app.get('/', (req, res) => {
-  res.send('HOME PAGE');
+  res.send('Reunion Social Media API');
 });
 
 async function initServer() {
