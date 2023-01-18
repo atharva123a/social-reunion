@@ -87,18 +87,19 @@ const followUser = async (req: any, res: Response) => {
       return createAPIError(404, `No such user found to follow!`, res);
     }
 
-    const unfollower = await UserSchema.findById(followerId);
+    const follower = await UserSchema.findById(followerId);
 
-    let list = unfollower.following.filter(
-      (person) => person == userId.toString()
+    const updatedUser = await UserSchema.findByIdAndUpdate(
+      userId,
+      {
+        $addToSet: { followers: followerId }
+      },
+      { new: true, runValidators: true }
     );
 
-    if (!list || list.length == 0) {
-      user.followers.push(followerId.toString());
-      unfollower.following.push(userId.toString());
-
-      await user.save();
-      await unfollower.save();
+    if (updatedUser.followers.length > user.followers.length) {
+      follower.following.push(userId.toString());
+      await follower.save();
       return res
         .status(200)
         .json({ success: true, message: 'Followed successfully!' });
@@ -134,21 +135,20 @@ const unfollowUser = async (req: any, res: Response) => {
 
     const unfollower = await UserSchema.findById(unfollowerId);
 
-    let list = unfollower.following.filter(
-      (person) => person == userId.toString()
+    const updatedUser = await UserSchema.findByIdAndUpdate(
+      userId,
+      {
+        $pull: { followers: unfollowerId }
+      },
+      { new: true, runValidators: true }
     );
 
-    if (list.length == 1) {
+    // there was an unfollow action:
+    if (updatedUser.followers.length < user.followers.length) {
       unfollower.following = unfollower.following.filter(
-        (person) => person != userId.toString()
+        (item) => item != userId.toString()
       );
-      user.followers = user.followers.filter(
-        (person) => person != unfollowerId.toString()
-      );
-
-      await user.save();
       await unfollower.save();
-
       return res
         .status(200)
         .json({ success: true, message: 'Unfollowed successfully!' });
