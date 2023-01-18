@@ -1,11 +1,7 @@
 import { Request, Response } from 'express';
 import createAPIError from '../utils/error';
-import UserSchema, { update } from './userSchema';
+import UserSchema from './userSchema';
 import { createTokenUser, getTokens, validateToken } from '../utils/jwt';
-import { fips } from 'crypto';
-
-const DUMMY_EMAIL = 'athens@gmail.com';
-const DUMMY_PASSWORD = '12345678';
 
 const authenticateUser = async (req: any, res: Response) => {
   try {
