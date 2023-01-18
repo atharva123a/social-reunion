@@ -5,6 +5,7 @@ import http from 'http';
 import { PORT } from './config';
 import { initDb } from './db';
 import { router as userRouter } from './user/userRoutes';
+import { router as postsRouter } from './posts/postsRoutes';
 import cors from 'cors';
 import morgan from 'morgan';
 import compression from 'compression';
@@ -31,6 +32,7 @@ async function initServer() {
 async function initRouter() {
   app.use('/health', (req, res) => res.send('OK!'));
   app.use('/api', userRouter);
+  app.use('/api', postsRouter);
 }
 
 export async function init() {
