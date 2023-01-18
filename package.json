@@ -2,19 +2,24 @@
   "name": "06-jobs-api",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "app/app.ts",
   "scripts": {
     "start": "ts-node app/app.ts",
-    "build": "npx tsc"
+    "build": "npx tsc",
+    "test": "mocha test"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.2.3",
+    "chai": "^4.3.7",
+    "chai-http": "^4.3.0",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
+    "mocha": "^10.2.0",
     "moment": "^2.29.4",
     "mongodb": "^4.8.0",
     "mongoose": "^6.4.4",
