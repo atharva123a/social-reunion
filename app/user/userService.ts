@@ -27,7 +27,7 @@ const authenticateUser = async (req: any, res: Response) => {
 
       // if the token is valid, we return the saved token:
       if (success) {
-        return res.status(200).json({ success: true, data: user.accessToken });
+        return res.status(200).json({ success: true, jwt: user.accessToken });
       }
     }
     // if not we simply generate another token and save it:
