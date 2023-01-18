@@ -30,7 +30,6 @@ async function initServer() {
 }
 
 async function initRouter() {
-  app.use('/health', (req, res) => res.send('OK!'));
   app.use('/api', userRouter);
   app.use('/api', postsRouter);
 }
