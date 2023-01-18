@@ -15,9 +15,7 @@ const createJWT = ({ payload }, expiresIn, res: Response) => {
 };
 
 const getTokens = (user, res: Response) => {
-  let accessTokenExpiry = '1d';
-
-  let refreshTokenExpiry = '7d';
+  let accessTokenExpiry = '7d';
 
   const accessTokenJWT = createJWT(
     { payload: { user, type: 'accessToken' } },
@@ -25,23 +23,12 @@ const getTokens = (user, res: Response) => {
     res
   );
 
-  const refreshTokenJWT = createJWT(
-    { payload: { user, type: 'refreshToken' } },
-    refreshTokenExpiry,
-    res
-  );
-
   const accessToken = {
     accessTokenJWT,
-    expiresIn: 1000 * 60 * 60 * 24 // 24 hrs!
-  };
-
-  const refreshToken = {
-    refreshTokenJWT,
     expiresIn: 1000 * 60 * 60 * 24 * 7 // 7 days!
   };
 
-  return { accessToken, refreshToken };
+  return { accessToken };
 };
 
 const isTokenValid = (token) => {

@@ -10,13 +10,13 @@ const createPost = async (req: any, res: Response) => {
 
     const post = await PostSchema.create({ createdBy: userId, title, desc });
 
-    const { createdAt } = post;
+    const { createdAt, _id } = post;
 
     const creationTime = moment(createdAt).format('MMMM Do YYYY, h:mm:ss a');
 
     return res
       .status(200)
-      .json({ success: true, data: { creationTime, title, desc } });
+      .json({ success: true, data: { creationTime, title, desc, _id } });
   } catch (error) {
     let err = error.msg || error;
     console.log(err);
