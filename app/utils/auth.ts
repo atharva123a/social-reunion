@@ -13,14 +13,9 @@ const authorizeUser = async (req: any, res: Response, next: NextFunction) => {
     const accessToken = req.headers.authorization.split(' ')[1];
 
     // validate the JWT by verifying signature:
-    const payload = isTokenValid(accessToken, res);
-
-    if (!payload) {
-      return createAPIError(
-        401,
-        'The token has expired! Please login again!',
-        res
-      );
+    const { payload, success, message } = isTokenValid(accessToken);
+    if (!success) {
+      return createAPIError(401, message, res);
     }
 
     req.user = payload['user'];
@@ -34,6 +29,7 @@ const authorizeUser = async (req: any, res: Response, next: NextFunction) => {
 
     return next();
   } catch (error) {
+    console.log('HEE?');
     let err = error.msg || error;
     console.log(err);
     createAPIError(401, 'Authentication failed!', res);

@@ -44,18 +44,14 @@ const getTokens = (user, res: Response) => {
   return { accessToken, refreshToken };
 };
 
-const isTokenValid = (token, res: Response) => {
+const isTokenValid = (token) => {
   try {
     const payload = jwt.verify(token, JWT_SECRET);
-    return payload;
+    return { success: true, payload };
   } catch (err) {
     const error = err.message || err;
     console.log(error);
-    return createAPIError(
-      401,
-      'The token has expired! Please login again!',
-      res
-    );
+    return { success: false, message: err };
   }
 };
 
