@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "ts-node app/app.ts"
+    "start": "ts-node app/app.ts",
+    "build": "npx tsc"
   },
   "author": "",
   "license": "ISC",
