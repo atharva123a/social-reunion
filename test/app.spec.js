@@ -5,7 +5,11 @@ const axios = require('axios');
 const chai = require('chai');
 
 const server = 'https://reunion-backend-atharva-salokhe.onrender.com'
-// Since render can be slow sometimes, please feel free to run the application locally
+
+/*
+Since render can be slow sometimes, please feel free to run the application locally
+*/
+
 // const server = 'http://localhost:3000'
 
 chai.should();
@@ -13,20 +17,16 @@ chai.should();
 chai.use(chaiHttp);
 
 
-// user class:
+// user object to check for user creation:
 const user = new User("atharvarsalokhe2@gmail.com", "qwerty@1234", "")
 
+// post object to test for post creation:
 const post = new Post('Blue Lock', "A story about football that is more than just football!")
 
 describe('Testing User APIs', () => {
 
-    // try to authenticate user without email/password:
+    // Positive test that checks if bearer token is returned:
     it('Return the bearer token upon logging in', (done) => {
-        // const user = {
-        //     email: "atharvarsalokhe2@gmail.com",
-        //     password: "qwerty@1234"
-        // }
-
         chai.request(server)
             .post('/api/authenticate')
             .send(user)
@@ -44,6 +44,7 @@ describe('Testing User APIs', () => {
             })
     })
 
+    // positive test to check if a token was returned or not:
     it('Check if the user has been created inside DB using token', (done) => {
         chai.request(server).get('/api/user')
             .set({ "Authorization": `Bearer ${user.token}` }).end((err, response) => {
@@ -70,10 +71,7 @@ describe('Testing User APIs', () => {
 
 describe('Testing for Posts APIs', () => {
 
-    // will be used in the future to test our Post creation API:
-    let postId = '';
-
-    // negative test case to find out whether we are creating
+    // Negative Test to check for post creation without title
     it('Should not create a post without title property', (done) => {
 
         // does not have post title:
@@ -128,8 +126,8 @@ describe('Testing for Posts APIs', () => {
     })
 
 
-    // test the get the post that was created in the last test:
-    it('Check if this post was infact created', (done) => {
+    // Confirmation for post creation:
+    it('Confirmationf for post creation', (done) => {
         chai.request(server).get(`/api/posts/${post._id}`)
             .end((err, response) => {
                 response.should.have.status(200);
@@ -149,7 +147,8 @@ describe('Testing for Posts APIs', () => {
                 response.body.data.title.should.be.a('string');
                 response.body.data.desc.should.be.a('string');
                 response.body.data.created_at.should.be.a('string');
-                response.body.data.comments.should.be.a('array');
+                // the comments are initially empty, so we test for that!
+                response.body.data.comments.should.be.a('array').that.is.empty;
                 response.body.data.likes.should.be.a('number');
 
                 response.body.data._id.should.be.eq(post._id);
