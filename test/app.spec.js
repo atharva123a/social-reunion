@@ -1,7 +1,6 @@
 const { User, Post } = require('./test');
 
 let chaiHttp = require('chai-http');
-const axios = require('axios');
 const chai = require('chai');
 
 const server = 'https://reunion-backend-atharva-salokhe.onrender.com'
